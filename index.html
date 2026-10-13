@@ -2,278 +2,584 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>lift.</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FAFAFA" id="meta-theme">
+<title>lift</title>
+<script>
+(function(){
+  var k='lift_theme',s=localStorage.getItem(k);
+  var dark=s==='dark'||(s!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.dataset.theme=dark?'dark':'light';
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
+:root{
+  color-scheme:light;
+  --bg:#FAFAFA;
+  --surface:#FFFFFF;
+  --elevated:#FFFFFF;
+  --text:#0A0A0A;
+  --text-2:#525252;
+  --text-3:#A3A3A3;
+  --line:rgba(10,10,10,.07);
+  --line-strong:rgba(10,10,10,.12);
+  --accent:#0A0A0A;
+  --accent-fg:#FFFFFF;
+  --accent-soft:#F5F5F5;
+  --brand:#3D5A30;
+  --brand-muted:rgba(61,90,48,.12);
+  --danger:#B91C1C;
+  --danger-soft:rgba(185,28,28,.08);
+  --focus-ring:rgba(10,10,10,.06);
+  --nav-bg:rgba(250,250,250,.88);
+  --toast-bg:#0A0A0A;
+  --toast-fg:#FFFFFF;
+  --chart-grid:rgba(10,10,10,.05);
+  --chart-bar-dim:#E5E5E5;
+  --chart-bar-hi:#0A0A0A;
+  --radius:14px;
+  --radius-sm:10px;
+  --radius-xs:8px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --shadow:0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.06);
+  --max:640px;
+  --nav-h:56px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#090909;
+  --surface:#121212;
+  --elevated:#181818;
+  --text:#F5F5F5;
+  --text-2:#A3A3A3;
+  --text-3:#737373;
+  --line:rgba(255,255,255,.08);
+  --line-strong:rgba(255,255,255,.14);
+  --accent:#F5F5F5;
+  --accent-fg:#0A0A0A;
+  --accent-soft:#1A1A1A;
+  --brand:#9BB884;
+  --brand-muted:rgba(155,184,132,.14);
+  --danger:#F87171;
+  --danger-soft:rgba(248,113,113,.12);
+  --focus-ring:rgba(255,255,255,.08);
+  --nav-bg:rgba(9,9,9,.92);
+  --toast-bg:#F5F5F5;
+  --toast-fg:#0A0A0A;
+  --chart-grid:rgba(255,255,255,.06);
+  --chart-bar-dim:#2A2A2A;
+  --chart-bar-hi:#F5F5F5;
+  --shadow:0 1px 2px rgba(0,0,0,.35);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.45);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f7f7f5;color:#1a1a1a;min-height:100vh}
-.app{max-width:740px;margin:0 auto;padding:2rem 1.5rem}
-.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.5rem}
-.logo{font-size:22px;font-weight:600;letter-spacing:-0.5px}
-.logo span{color:#3B6D11}
-.tab-bar{display:flex;gap:2px;background:#ebebea;padding:3px;border-radius:10px}
-.tb{padding:7px 16px;font-size:13px;border-radius:8px;cursor:pointer;color:#666;border:none;background:transparent;font-family:inherit;transition:all 0.15s;font-weight:400}
-.tb.on{background:#fff;color:#1a1a1a;font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
-.view{display:none}.view.on{display:block}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.45;font-feature-settings:"cv01","ss01"}
+button,input{font-family:inherit}
+.app{max-width:var(--max);margin:0 auto;padding:0 20px calc(var(--nav-h) + var(--safe-b) + 24px);min-height:100vh}
 
-/* log */
-.day-row{display:flex;align-items:baseline;gap:10px;margin-bottom:1.5rem}
-.day-big{font-size:26px;font-weight:600;letter-spacing:-0.5px}
-.day-sub{font-size:14px;color:#888}
-.session-inp{font-size:18px;font-weight:500;border:none;background:transparent;color:#1a1a1a;font-family:inherit;width:100%;padding:0 0 8px;border-bottom:2px solid #e8e8e6;outline:none;letter-spacing:-0.3px;margin-bottom:1.5rem;display:block}
-.session-inp:focus{border-bottom-color:#3B6D11}
-.session-inp::placeholder{color:#bbb}
-.ex-card{border:1px solid #e8e8e6;border-radius:12px;overflow:hidden;margin-bottom:10px;background:#fff}
-.ex-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#f7f7f5;border-bottom:1px solid #e8e8e6}
-.ex-head-name{font-size:15px;font-weight:500;display:flex;align-items:center;gap:8px}
-.gdot{width:7px;height:7px;border-radius:50%;background:#639922;display:inline-block;flex-shrink:0}
-.ex-sets{padding:10px 16px 4px}
-.set-cols{display:grid;grid-template-columns:24px 1fr 1fr 1fr 28px;gap:8px;align-items:center;margin-bottom:6px}
-.col-lbl{font-size:11px;color:#aaa;text-align:center;letter-spacing:0.4px;text-transform:uppercase}
-.set-n{font-size:12px;color:#bbb;text-align:center}
-.set-inp{width:100%;text-align:center;font-size:14px;padding:6px 4px;border:1px solid #e8e8e6;border-radius:6px;background:#fff;color:#1a1a1a;font-family:inherit;outline:none;transition:border-color 0.15s}
-.set-inp:focus{border-color:#639922;box-shadow:0 0 0 3px rgba(99,153,34,0.1)}
-.rm-set{width:24px;height:24px;border-radius:50%;border:1px solid #e8e8e6;background:transparent;cursor:pointer;font-size:14px;color:#bbb;display:flex;align-items:center;justify-content:center;transition:all 0.15s;line-height:1}
-.rm-set:hover{background:#fff0f0;border-color:#fca5a5;color:#dc2626}
-.add-set-row{padding:6px 16px 12px}
-.ghost-btn{font-size:13px;color:#3B6D11;border:none;background:transparent;cursor:pointer;font-family:inherit;padding:0;display:flex;align-items:center;gap:5px}
-.ghost-btn:hover{color:#2d5a0e}
-.add-panel{border:2px dashed #e0e0dc;border-radius:12px;padding:16px;margin-bottom:1.5rem;background:#fff;transition:border-color 0.2s}
-.add-panel:focus-within{border-color:#97C459}
-.add-row{display:flex;gap:8px;margin-bottom:12px}
-.main-inp{flex:1;font-size:14px;padding:9px 12px;border:1px solid #e0e0dc;border-radius:8px;background:#fff;color:#1a1a1a;font-family:inherit;outline:none}
-.main-inp:focus{border-color:#639922}
-.pill{display:inline-block;font-size:12px;padding:5px 11px;border-radius:20px;background:#f0f0ee;color:#666;cursor:pointer;border:1px solid #e0e0dc;transition:all 0.15s;margin:0 4px 4px 0}
-.pill:hover{background:#EAF3DE;color:#3B6D11;border-color:#97C459}
-.btn-save{font-size:14px;font-weight:500;padding:11px 28px;border-radius:10px;border:none;background:#3B6D11;color:#fff;cursor:pointer;font-family:inherit;transition:all 0.15s;letter-spacing:0.1px}
-.btn-save:hover{background:#2d5a0e}
-.btn-save:active{transform:scale(0.98)}
-.btn-outline{font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid #d0d0cc;background:#fff;color:#1a1a1a;cursor:pointer;font-family:inherit;transition:background 0.15s}
-.btn-outline:hover{background:#f0f0ee}
-.btn-danger-sm{font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid #fca5a5;background:transparent;color:#dc2626;cursor:pointer;font-family:inherit;transition:background 0.15s}
-.btn-danger-sm:hover{background:#fff0f0}
-.save-row{display:flex;justify-content:flex-end;margin-top:0.5rem}
+/* Header */
+.site-head{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:20px 0 16px;margin-bottom:8px;
+  background:linear-gradient(to bottom,var(--bg) 70%,transparent);
+  backdrop-filter:saturate(1.2) blur(8px);
+}
+.head-brand{display:flex;align-items:center;gap:10px;min-width:0}
+.wordmark{font-size:15px;font-weight:600;letter-spacing:-.04em;text-transform:lowercase;color:var(--text)}
+.wordmark em{font-style:normal;color:var(--brand)}
+.theme-toggle{
+  width:36px;height:36px;border-radius:999px;border:1px solid var(--line);
+  background:var(--surface);color:var(--text-2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:background .15s,border-color .15s,color .15s;
+}
+.theme-toggle:hover{color:var(--text);border-color:var(--line-strong)}
+.theme-toggle svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5}
+.theme-toggle .icon-sun,.theme-toggle .icon-moon{display:none}
+:root[data-theme="light"] .theme-toggle .icon-moon{display:block}
+:root[data-theme="dark"] .theme-toggle .icon-sun{display:block}
+.tabs-desktop{display:none;gap:2px;margin-left:auto}
+@media(min-width:720px){
+  .app{padding-bottom:48px}
+  .tabs-desktop{display:flex}
+  .tabs-mobile{display:none!important}
+  .site-head{padding-top:28px}
+  .log-save-bar{position:static;margin-top:32px;padding:0;background:none;border:none;backdrop-filter:none}
+}
 
-/* history */
-.card{background:#fff;border:1px solid #e8e8e6;border-radius:12px;padding:1rem 1.25rem;margin-bottom:12px}
-.hist-item{display:flex;align-items:flex-start;justify-content:space-between;padding:13px 0;border-bottom:1px solid #f0f0ee;cursor:pointer;transition:opacity 0.15s}
-.hist-item:hover{opacity:0.65}
+/* Tabs */
+.tb,.tb-m{
+  font-size:13px;font-weight:500;letter-spacing:-.01em;
+  color:var(--text-3);background:transparent;border:none;cursor:pointer;
+  transition:color .2s var(--ease);
+}
+.tb{padding:8px 14px;border-radius:999px}
+.tb.on{color:var(--text);background:var(--surface);box-shadow:var(--shadow)}
+.tabs-mobile{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  display:flex;justify-content:space-around;align-items:stretch;
+  height:calc(var(--nav-h) + var(--safe-b));padding-bottom:var(--safe-b);
+  background:var(--nav-bg);
+  border-top:1px solid var(--line);
+  backdrop-filter:blur(16px) saturate(1.4);
+}
+.tb-m{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:8px 4px;font-size:10px;font-weight:500;letter-spacing:.02em;text-transform:uppercase;
+}
+.tb-m svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.5;opacity:.45;transition:opacity .2s var(--ease)}
+.tb-m.on{color:var(--text)}
+.tb-m.on svg{opacity:1;stroke-width:1.65}
+
+.view{display:none;animation:fadeIn .35s var(--ease)}
+.view.on{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* Page intro */
+.page-kicker{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px}
+.page-title{font-size:clamp(28px,7vw,34px);font-weight:600;letter-spacing:-.045em;line-height:1.05;margin-bottom:4px}
+.page-sub{font-size:14px;color:var(--text-2);margin-bottom:28px}
+
+/* Log */
+.session-inp{
+  width:100%;font-size:15px;font-weight:500;letter-spacing:-.02em;
+  border:none;background:transparent;color:var(--text);
+  padding:0 0 14px;margin-bottom:28px;
+  border-bottom:1px solid var(--line-strong);
+  outline:none;transition:border-color .2s;
+}
+.session-inp::placeholder{color:var(--text-3);font-weight:400}
+.session-inp:focus{border-bottom-color:var(--text)}
+
+.ex-block{
+  background:var(--surface);border-radius:var(--radius);
+  border:1px solid var(--line);margin-bottom:12px;
+  overflow:hidden;box-shadow:var(--shadow);
+}
+.ex-block-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 18px 12px;
+}
+.ex-title{font-size:15px;font-weight:600;letter-spacing:-.02em}
+.btn-text{
+  font-size:12px;font-weight:500;color:var(--text-3);background:none;border:none;cursor:pointer;
+  padding:4px 0;transition:color .15s;
+}
+.btn-text:hover{color:var(--danger)}
+.btn-text.danger{color:var(--danger)}
+
+.set-grid{display:grid;grid-template-columns:28px 1fr 1fr 1.2fr 32px;gap:6px 8px;padding:0 14px 14px;align-items:center}
+.set-grid-h{padding-bottom:6px;margin-bottom:2px;border-bottom:1px solid var(--line)}
+.col-h{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);text-align:center}
+.col-h:first-child{text-align:left}
+.set-idx{font-size:12px;font-variant-numeric:tabular-nums;color:var(--text-3);text-align:center}
+.set-inp{
+  width:100%;text-align:center;font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;
+  padding:10px 6px;border:1px solid transparent;border-radius:var(--radius-xs);
+  background:var(--accent-soft);color:var(--text);outline:none;
+  transition:border-color .15s,background .15s;
+}
+.set-inp:focus{background:var(--surface);border-color:var(--line-strong);box-shadow:0 0 0 3px var(--focus-ring)}
+.set-inp::placeholder{color:var(--text-3);font-weight:400}
+.rm-set{
+  width:28px;height:28px;border-radius:999px;border:none;background:transparent;
+  color:var(--text-3);cursor:pointer;font-size:18px;line-height:1;
+  display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;
+}
+.rm-set:hover{background:var(--danger-soft);color:var(--danger)}
+.ex-foot{padding:0 14px 14px}
+.ghost-btn{
+  display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;
+  color:var(--text-2);background:none;border:none;cursor:pointer;padding:6px 0;
+  transition:color .15s;
+}
+.ghost-btn:hover{color:var(--text)}
+
+.add-block{margin:24px 0 16px}
+.add-row{display:flex;gap:8px;margin-bottom:14px}
+.main-inp{
+  flex:1;font-size:14px;padding:12px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);background:var(--surface);color:var(--text);outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.main-inp:focus{border-color:var(--line-strong);box-shadow:0 0 0 3px var(--focus-ring)}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px}
+.pill{
+  font-size:12px;font-weight:500;padding:7px 12px;border-radius:999px;
+  background:var(--surface);color:var(--text-2);cursor:pointer;
+  border:1px solid var(--line);transition:all .15s var(--ease);
+}
+.pill:hover{border-color:var(--line-strong);color:var(--text);transform:translateY(-1px)}
+
+.btn{
+  font-size:14px;font-weight:600;letter-spacing:-.01em;
+  padding:12px 20px;border-radius:999px;border:none;cursor:pointer;
+  transition:transform .12s,opacity .15s,background .15s;
+}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:var(--accent-fg)}
+.btn-primary:hover{opacity:.92}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--line)}
+.btn-secondary:hover{background:var(--accent-soft)}
+.btn-sm{font-size:13px;padding:9px 16px}
+
+.log-save-bar{
+  position:fixed;left:0;right:0;bottom:calc(var(--nav-h) + var(--safe-b));
+  z-index:30;padding:12px 20px;
+  background:linear-gradient(to top,var(--bg) 60%,transparent);
+  pointer-events:none;
+}
+.log-save-bar .btn-primary{width:100%;max-width:var(--max);margin:0 auto;display:block;pointer-events:auto;box-shadow:var(--shadow-lg)}
+
+/* History */
+.surface-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.hist-item{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:16px 18px;border-bottom:1px solid var(--line);cursor:pointer;
+  transition:background .12s;
+}
 .hist-item:last-child{border-bottom:none}
-.hist-name{font-size:15px;font-weight:500;margin-bottom:3px}
-.hist-exs{font-size:13px;color:#888;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-item:hover{background:var(--accent-soft)}
+.hist-name{font-size:15px;font-weight:600;letter-spacing:-.02em;margin-bottom:2px}
+.hist-exs{font-size:13px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(360px,55vw)}
 .hist-meta{text-align:right;flex-shrink:0}
-.hist-date{font-size:13px;color:#888}
-.hist-sets{font-size:12px;color:#bbb;margin-top:2px}
-.back-btn{display:flex;align-items:center;gap:5px;font-size:13px;color:#888;cursor:pointer;margin-bottom:1.5rem;border:none;background:transparent;font-family:inherit;padding:0}
-.back-btn:hover{color:#1a1a1a}
-.detail-date{font-size:13px;color:#888;margin-bottom:4px}
-.detail-name{font-size:24px;font-weight:600;letter-spacing:-0.5px;margin-bottom:1rem}
-.badge{display:inline-flex;align-items:center;font-size:12px;padding:3px 9px;border-radius:20px;background:#EAF3DE;color:#3B6D11;margin-right:6px;margin-bottom:12px}
+.hist-date{font-size:12px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.hist-sets{font-size:13px;font-weight:500;color:var(--text-2);margin-top:2px;font-variant-numeric:tabular-nums}
+.hist-chevron{color:var(--text-3);margin-left:8px;flex-shrink:0}
 
-/* dashboard */
-.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
-.mc{background:#fff;border:1px solid #e8e8e6;border-radius:10px;padding:14px 12px}
-.mc-l{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
-.mc-v{font-size:22px;font-weight:600;letter-spacing:-0.5px}
-.mc-u{font-size:11px;color:#aaa;margin-left:2px;font-weight:400}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.card-title{font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:14px}
-.bar-wrap{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #f0f0ee}
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;
+  color:var(--text-2);background:none;border:none;cursor:pointer;margin-bottom:20px;padding:0;
+}
+.back-btn:hover{color:var(--text)}
+.detail-date{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px}
+.detail-name{font-size:clamp(24px,6vw,28px);font-weight:600;letter-spacing:-.04em;margin-bottom:16px}
+.stat-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.badge{
+  font-size:12px;font-weight:500;padding:6px 12px;border-radius:999px;
+  background:var(--accent-soft);color:var(--text-2);border:1px solid var(--line);
+}
+.set-read{font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;text-align:center}
+.set-note{font-size:13px;color:var(--text-2)}
+
+/* Dashboard */
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+@media(min-width:520px){.metrics{grid-template-columns:repeat(4,1fr)}}
+.mc{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:16px 14px;box-shadow:var(--shadow);
+}
+.mc-l{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.mc-v{font-size:22px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.mc-u{font-size:12px;font-weight:500;color:var(--text-3);margin-left:2px}
+.panel{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px 18px;margin-bottom:12px;box-shadow:var(--shadow);
+}
+.panel-title{font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
+.chart-wrap{position:relative;height:200px}
+.two-col{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+@media(min-width:600px){.two-col{grid-template-columns:1fr 1fr}}
+.bar-wrap{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
 .bar-wrap:last-child{border-bottom:none}
-.bar-label{font-size:13px;width:100px;flex-shrink:0;display:flex;align-items:center;gap:6px;overflow:hidden}
+.bar-label{font-size:13px;font-weight:500;width:88px;flex-shrink:0;display:flex;align-items:center;gap:8px}
 .bar-label span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar-track{flex:1;height:5px;background:#f0f0ee;border-radius:3px;overflow:hidden}
-.bar-fill{height:100%;border-radius:3px;transition:width 0.5s ease}
-.bar-val{font-size:12px;color:#888;width:52px;text-align:right;flex-shrink:0}
-.cdot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.wk-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0ee;font-size:13px}
+.bar-track{flex:1;height:4px;background:var(--accent-soft);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;background:var(--text);opacity:.85;transition:width .6s var(--ease)}
+.bar-val{font-size:12px;font-weight:500;color:var(--text-2);width:48px;text-align:right;font-variant-numeric:tabular-nums}
+.cdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--text-3)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-2)}
+.wk-row{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--line);font-size:13px;
+}
 .wk-row:last-child{border-bottom:none}
-.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.legend-item{display:flex;align-items:center;gap:4px;font-size:12px;color:#666}
+.wk-name{font-weight:600;letter-spacing:-.01em}
+.wk-muted{color:var(--text-3);font-variant-numeric:tabular-nums}
 
-/* import */
-.import-step{display:flex;gap:12px;align-items:flex-start;margin-bottom:1.5rem}
-.step-num{width:24px;height:24px;border-radius:50%;background:#EAF3DE;color:#3B6D11;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.step-label{font-size:14px;font-weight:500;margin-bottom:4px}
-.step-desc{font-size:13px;color:#666;line-height:1.5}
-.btn-dl{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid #97C459;background:#EAF3DE;color:#3B6D11;cursor:pointer;font-family:inherit;margin-top:8px;transition:all 0.15s}
-.btn-dl:hover{background:#C0DD97}
-.drop-zone{border:2px dashed #d0d0cc;border-radius:12px;padding:2.5rem 1rem;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:1.5rem;background:#fff}
-.drop-zone:hover,.drop-zone.drag{border-color:#97C459;background:#f0f9e8}
-.drop-text{font-size:14px;color:#666;margin-bottom:4px}
-.drop-sub{font-size:12px;color:#aaa}
+/* Import */
+.import-lead{margin-bottom:32px}
+.step{display:grid;grid-template-columns:20px 1fr;gap:16px;margin-bottom:28px}
+.step-line{width:1px;background:var(--line);margin:4px auto 0;height:calc(100% - 8px);grid-row:span 2}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--text);margin-top:6px}
+.step-title{font-size:14px;font-weight:600;letter-spacing:-.02em;margin-bottom:4px}
+.step-desc{font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:10px}
 .schema-table{width:100%;border-collapse:collapse;font-size:13px}
-.schema-table th{text-align:left;padding:6px 10px;background:#f7f7f5;color:#888;font-weight:500;border-bottom:1px solid #e8e8e6}
-.schema-table td{padding:6px 10px;border-bottom:1px solid #f0f0ee;vertical-align:top}
+.schema-table th{text-align:left;padding:8px 10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);border-bottom:1px solid var(--line)}
+.schema-table td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
 .schema-table tr:last-child td{border-bottom:none}
-.mono{font-family:monospace;background:#f0f0ee;padding:1px 5px;border-radius:4px;font-size:12px}
-.req{font-size:11px;padding:2px 7px;border-radius:10px;background:#EAF3DE;color:#3B6D11}
-.opt{font-size:11px;padding:2px 7px;border-radius:10px;background:#f0f0ee;color:#888}
-.preview-card{border:1px solid #e8e8e6;border-radius:10px;overflow:hidden;margin-bottom:8px;background:#fff}
-.preview-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f7f7f5;border-bottom:1px solid #e8e8e6}
-.preview-name{font-size:14px;font-weight:500}
-.preview-body{padding:6px 12px 8px}
-.preview-ex{font-size:13px;color:#666;padding:3px 0;border-bottom:1px solid #f0f0ee;display:flex;gap:8px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--text)}
+.tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}
+.tag-req{background:var(--brand-muted);color:var(--brand)}
+.tag-opt{background:var(--accent-soft);color:var(--text-3)}
+
+.drop-zone{
+  border:1px dashed var(--line-strong);border-radius:var(--radius);
+  padding:40px 20px;text-align:center;cursor:pointer;
+  background:var(--surface);transition:border-color .2s,background .2s;
+}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--text-3);background:var(--accent-soft)}
+.drop-text{font-size:14px;font-weight:500;margin-bottom:4px}
+.drop-sub{font-size:12px;color:var(--text-3)}
+.preview-card{border:1px solid var(--line);border-radius:var(--radius-sm);margin-bottom:8px;background:var(--surface);overflow:hidden}
+.preview-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
+.preview-name{font-size:14px;font-weight:600}
+.preview-body{padding:8px 14px 10px}
+.preview-ex{font-size:13px;color:var(--text-2);padding:6px 0;border-bottom:1px solid var(--line);display:flex;gap:12px;flex-wrap:wrap}
 .preview-ex:last-child{border-bottom:none}
-.error-box{background:#fff0f0;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:#dc2626;margin-bottom:10px}
-.success-box{background:#EAF3DE;border:1px solid #97C459;border-radius:12px;padding:2rem;text-align:center;margin-bottom:12px}
-.success-big{font-size:26px;font-weight:600;color:#3B6D11;margin-bottom:4px;letter-spacing:-0.5px}
-.success-sub{font-size:14px;color:#3B6D11}
-.btn-import{font-size:14px;font-weight:500;padding:10px 24px;border-radius:10px;border:none;background:#3B6D11;color:#fff;cursor:pointer;font-family:inherit;transition:opacity 0.15s}
-.btn-import:hover{opacity:0.85}
-.btn-import:disabled{opacity:0.4;cursor:not-allowed}
-.empty{text-align:center;padding:3rem 1rem;color:#888;font-size:14px}
-#boot-screen{text-align:center;padding:5rem 1rem;color:#888;font-size:14px}
+
+.msg-error{background:var(--danger-soft);border:1px solid rgba(185,28,28,.15);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:var(--danger);margin-bottom:10px}
+.msg-success{
+  text-align:center;padding:48px 24px;margin-bottom:20px;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+}
+.msg-success-num{font-size:40px;font-weight:600;letter-spacing:-.04em;margin-bottom:4px}
+.msg-success-sub{font-size:14px;color:var(--text-2)}
+.empty{text-align:center;padding:56px 20px;color:var(--text-3);font-size:14px}
+.empty strong{display:block;font-size:15px;font-weight:600;color:var(--text-2);margin-bottom:6px}
+
+#boot-screen{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  color:var(--text-3);font-size:13px;font-weight:500;
+}
+.boot-mark{font-size:18px;font-weight:600;letter-spacing:-.04em;color:var(--text)}
+.boot-mark em{font-style:normal;color:var(--brand)}
+.boot-spinner{width:20px;height:20px;border:2px solid var(--line);border-top-color:var(--text);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-12px);
+  z-index:100;padding:12px 18px;border-radius:999px;font-size:13px;font-weight:500;
+  background:var(--toast-bg);color:var(--toast-fg);box-shadow:var(--shadow-lg);
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s var(--ease);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.import-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.preview-header{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px}
 </style>
 </head>
 <body>
-<div id="boot-screen">Loading lift...</div>
-<div class="app" id="app" style="display:none">
-  <div class="nav">
-    <div class="logo">lift<span>.</span></div>
-    <div class="tab-bar">
-      <button class="tb on" onclick="goTab('log',this)">Log</button>
-      <button class="tb" onclick="goTab('history',this)">History</button>
-      <button class="tb" onclick="goTab('dashboard',this)">Dashboard</button>
-      <button class="tb" onclick="goTab('import',this)">Import</button>
-    </div>
-  </div>
-
-  <!-- LOG -->
-  <div id="v-log" class="view on">
-    <div class="day-row">
-      <div class="day-big" id="day-name"></div>
-      <div class="day-sub" id="day-full"></div>
-    </div>
-    <input class="session-inp" id="sn" placeholder="Name this session…" />
-    <div id="ex-list"></div>
-    <div class="add-panel">
-      <div class="add-row">
-        <input class="main-inp" id="ex-inp" placeholder="Add an exercise…" onkeydown="if(event.key==='Enter')doAdd()" />
-        <button class="btn-outline" onclick="doAdd()">Add</button>
-      </div>
-      <div id="quick-pills"></div>
-    </div>
-    <div class="save-row"><button class="btn-save" onclick="doSave()">Save workout</button></div>
-  </div>
-
-  <!-- HISTORY -->
-  <div id="v-history" class="view">
-    <div id="hist-content"></div>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div id="v-dashboard" class="view">
-    <div class="metrics" id="db-metrics"></div>
-    <div class="card">
-      <div class="card-title">Volume per workout (lbs)</div>
-      <div style="position:relative;height:210px"><canvas id="vol-chart"></canvas></div>
-    </div>
-    <div class="two-col">
-      <div class="card">
-        <div class="card-title">Volume by muscle group</div>
-        <div style="position:relative;height:170px"><canvas id="muscle-chart"></canvas></div>
-        <div class="legend" id="muscle-legend"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Sets by muscle group</div>
-        <div id="muscle-bars"></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">Session log</div>
-      <div id="db-log"></div>
-    </div>
-  </div>
-
-  <!-- IMPORT -->
-  <div id="v-import" class="view">
-    <div id="import-upload">
-      <div style="font-size:18px;font-weight:600;letter-spacing:-0.3px;margin-bottom:6px">Import past workouts</div>
-      <div style="font-size:14px;color:#888;margin-bottom:1.5rem;line-height:1.6">Upload a CSV with your workout history. Existing workouts are preserved — this only adds new ones.</div>
-
-      <div class="import-step">
-        <div class="step-num">1</div>
-        <div>
-          <div class="step-label">Download the template</div>
-          <div class="step-desc">One row per set. Group rows into a workout with the same date + workout name.</div>
-          <button class="btn-dl" onclick="dlTemplate()">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v7M4 6l3 3 3-3M2 11h10" stroke="#3B6D11" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Download template.csv
-          </button>
-        </div>
-      </div>
-
-      <div class="import-step">
-        <div class="step-num">2</div>
-        <div>
-          <div class="step-label">CSV format</div>
-          <div class="card" style="margin-top:10px;padding:0.75rem">
-            <table class="schema-table">
-              <thead><tr><th>Column</th><th>Required</th><th>Example</th></tr></thead>
-              <tbody>
-                <tr><td><span class="mono">date</span></td><td><span class="req">required</span></td><td>2026-03-01</td></tr>
-                <tr><td><span class="mono">workout_name</span></td><td><span class="req">required</span></td><td>Push Day</td></tr>
-                <tr><td><span class="mono">exercise</span></td><td><span class="req">required</span></td><td>Bench Press</td></tr>
-                <tr><td><span class="mono">reps</span></td><td><span class="req">required</span></td><td>8</td></tr>
-                <tr><td><span class="mono">weight</span></td><td><span class="opt">optional</span></td><td>185</td></tr>
-                <tr><td><span class="mono">note</span></td><td><span class="opt">optional</span></td><td>Drop set</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="import-step">
-        <div class="step-num">3</div>
-        <div style="width:100%">
-          <div class="step-label">Upload your CSV</div>
-          <div class="step-desc" style="margin-bottom:12px">Preview before anything saves.</div>
-          <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-inp').click()" ondragover="dzEv(event,'drag')" ondragleave="dzEv(event,'')" ondrop="onDrop(event)">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="margin:0 auto 10px;display:block;opacity:0.35"><rect x="4" y="8" width="28" height="22" rx="3" stroke="currentColor" stroke-width="1.2"/><path d="M12 8V6a2 2 0 012-2h8a2 2 0 012 2v2M18 14v8M15 19l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <div class="drop-text">Drop CSV here or click to browse</div>
-            <div class="drop-sub">Accepts .csv files</div>
-          </div>
-          <input id="file-inp" type="file" accept=".csv" style="display:none" onchange="onFile(event)" />
-          <div id="upload-error"></div>
-        </div>
-      </div>
-    </div>
-
-    <div id="import-preview" style="display:none">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem">
-        <div>
-          <div style="font-size:17px;font-weight:600;letter-spacing:-0.3px" id="preview-title"></div>
-          <div style="font-size:13px;color:#888;margin-top:3px" id="preview-sub"></div>
-        </div>
-        <div style="display:flex;gap:8px;flex-shrink:0">
-          <button class="btn-outline" onclick="resetImport()">Start over</button>
-          <button class="btn-import" id="import-btn" onclick="doImport()">Import all</button>
-        </div>
-      </div>
-      <div id="preview-errors"></div>
-      <div id="preview-list"></div>
-    </div>
-
-    <div id="import-success" style="display:none">
-      <div class="success-box">
-        <div class="success-big" id="success-count"></div>
-        <div class="success-sub">workouts imported successfully</div>
-      </div>
-      <div style="display:flex;gap:8px;justify-content:center">
-        <button class="btn-outline" onclick="resetImport()">Import more</button>
-        <button class="btn-save" onclick="goTabById('dashboard')">Go to dashboard</button>
-      </div>
-    </div>
-  </div>
+<div id="boot-screen">
+  <div class="boot-mark">lift<em>.</em></div>
+  <div class="boot-spinner" aria-hidden="true"></div>
 </div>
+<div class="toast" id="toast" role="status"></div>
+
+<div class="app" id="app" style="display:none">
+  <header class="site-head">
+    <div class="head-brand">
+      <div class="wordmark">lift<em>.</em></div>
+      <button type="button" class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1112.5 3a6.5 6.5 0 009 11.5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <nav class="tabs-desktop" aria-label="Main">
+      <button type="button" class="tb on" data-tab="log" onclick="goTab('log',this)">Log</button>
+      <button type="button" class="tb" data-tab="history" onclick="goTab('history',this)">History</button>
+      <button type="button" class="tb" data-tab="dashboard" onclick="goTab('dashboard',this)">Stats</button>
+      <button type="button" class="tb" data-tab="import" onclick="goTab('import',this)">Import</button>
+    </nav>
+  </header>
+
+  <main>
+    <div id="v-log" class="view on">
+      <p class="page-kicker" id="day-full"></p>
+      <h1 class="page-title" id="day-name"></h1>
+      <p class="page-sub">Log sets as you go. Everything syncs when you save.</p>
+      <input class="session-inp" id="sn" placeholder="Session name" autocomplete="off" />
+      <div id="ex-list"></div>
+      <div class="add-block">
+        <div class="add-row">
+          <input class="main-inp" id="ex-inp" placeholder="Exercise name" autocomplete="off" onkeydown="if(event.key==='Enter')doAdd()" />
+          <button type="button" class="btn btn-secondary btn-sm" onclick="doAdd()">Add</button>
+        </div>
+        <div class="pill-row" id="quick-pills"></div>
+      </div>
+      <div class="log-save-bar">
+        <button type="button" class="btn btn-primary" id="btn-save-workout" onclick="doSave()">Save workout</button>
+      </div>
+    </div>
+
+    <div id="v-history" class="view">
+      <p class="page-kicker">Archive</p>
+      <h1 class="page-title">History</h1>
+      <p class="page-sub">Past sessions, full detail on tap.</p>
+      <div id="hist-content"></div>
+    </div>
+
+    <div id="v-dashboard" class="view">
+      <p class="page-kicker">Overview</p>
+      <h1 class="page-title">Stats</h1>
+      <p class="page-sub">Volume and balance over time.</p>
+      <div class="metrics" id="db-metrics"></div>
+      <div class="panel">
+        <div class="panel-title">Volume per session</div>
+        <div class="chart-wrap"><canvas id="vol-chart"></canvas></div>
+      </div>
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-title">Volume by group</div>
+          <div class="chart-wrap" style="height:170px"><canvas id="muscle-chart"></canvas></div>
+          <div class="legend" id="muscle-legend"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Sets by group</div>
+          <div id="muscle-bars"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Recent sessions</div>
+        <div id="db-log"></div>
+      </div>
+    </div>
+
+    <div id="v-import" class="view">
+      <div id="import-upload">
+        <p class="page-kicker">Data</p>
+        <h1 class="page-title">Import</h1>
+        <p class="page-sub import-lead">Add historical workouts from CSV. Existing entries stay untouched.</p>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div>
+            <div class="step-title">Get the template</div>
+            <div class="step-desc">One row per set. Same date and workout name group into one session.</div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="dlTemplate()">Download template.csv</button>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div>
+            <div class="step-title">Column format</div>
+            <div class="panel" style="padding:0;margin-top:8px">
+              <table class="schema-table">
+                <thead><tr><th>Column</th><th></th><th>Example</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">date</td><td><span class="tag tag-req">req</span></td><td>2026-03-01</td></tr>
+                  <tr><td class="mono">workout_name</td><td><span class="tag tag-req">req</span></td><td>Push Day</td></tr>
+                  <tr><td class="mono">exercise</td><td><span class="tag tag-req">req</span></td><td>Bench Press</td></tr>
+                  <tr><td class="mono">reps</td><td><span class="tag tag-req">req</span></td><td>8</td></tr>
+                  <tr><td class="mono">weight</td><td><span class="tag tag-opt">opt</span></td><td>185</td></tr>
+                  <tr><td class="mono">note</td><td><span class="tag tag-opt">opt</span></td><td>Drop set</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div style="width:100%">
+            <div class="step-title">Upload</div>
+            <div class="step-desc">Preview before saving.</div>
+            <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-inp').click()" ondragover="dzEv(event,'drag')" ondragleave="dzEv(event,'')" ondrop="onDrop(event)">
+              <div class="drop-text">Drop CSV or browse</div>
+              <div class="drop-sub">.csv only</div>
+            </div>
+            <input id="file-inp" type="file" accept=".csv" hidden onchange="onFile(event)" />
+            <div id="upload-error"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="import-preview" hidden>
+        <div class="preview-header">
+          <div>
+            <h2 class="page-title" style="font-size:22px;margin-bottom:4px" id="preview-title"></h2>
+            <p class="page-sub" style="margin:0" id="preview-sub"></p>
+          </div>
+          <div class="import-actions">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="resetImport()">Start over</button>
+            <button type="button" class="btn btn-primary btn-sm" id="import-btn" onclick="doImport()">Import all</button>
+          </div>
+        </div>
+        <div id="preview-errors"></div>
+        <div id="preview-list"></div>
+      </div>
+
+      <div id="import-success" hidden>
+        <div class="msg-success">
+          <div class="msg-success-num" id="success-count"></div>
+          <div class="msg-success-sub">workouts imported</div>
+        </div>
+        <div class="import-actions" style="justify-content:center">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="resetImport()">Import more</button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="goTabById('dashboard')">View stats</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<nav class="tabs-mobile" aria-label="Main">
+  <button type="button" class="tb-m on" data-tab="log" onclick="goTab('log',this)">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+    Log
+  </button>
+  <button type="button" class="tb-m" data-tab="history" onclick="goTab('history',this)">
+    <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10" stroke-linecap="round"/></svg>
+    History
+  </button>
+  <button type="button" class="tb-m" data-tab="dashboard" onclick="goTab('dashboard',this)">
+    <svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15v-4M12 19V9M16 19v-6" stroke-linecap="round"/></svg>
+    Stats
+  </button>
+  <button type="button" class="tb-m" data-tab="import" onclick="goTab('import',this)">
+    <svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 21h14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Import
+  </button>
+</nav>
 
 <script>
 const API_URL='https://script.google.com/macros/s/AKfycbzCeQkyS0m0ULnGyuXLDSsscsZQPOuGstpKJjqCW-HPtDYYNHgefl--20DsW1fzZl8U/exec';
 const RK='wt_recent_v2';
+const TK='lift_theme';
 let workouts=[], recent=[], session={name:'',exercises:[]}, parsed=[];
 let volChartInst=null, muscleChartInst=null;
+
+const MUSCLE_LIGHT={'Back':'#3D5A30','Chest':'#404040','Shoulders':'#737373','Arms':'#525252','Legs':'#8A8A8A','Core':'#B0B0B0','Other':'#D4D4D4'};
+const MUSCLE_DARK={'Back':'#9BB884','Chest':'#D4D4D4','Shoulders':'#A3A3A3','Arms':'#B0B0B0','Legs':'#8A8A8A','Core':'#737373','Other':'#525252'};
+function isDark(){return document.documentElement.dataset.theme==='dark'}
+function muscleColors(){return isDark()?MUSCLE_DARK:MUSCLE_LIGHT}
+function cssVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim()}
+function applyTheme(theme,persist){
+  document.documentElement.dataset.theme=theme;
+  const meta=document.getElementById('meta-theme');
+  if(meta)meta.content=theme==='dark'?'#090909':'#FAFAFA';
+  if(persist)localStorage.setItem(TK,theme);
+  if(document.getElementById('v-dashboard').classList.contains('on'))renderDashboard();
+}
+function toggleTheme(){
+  applyTheme(isDark()?'light':'dark',true);
+}
+function initTheme(){
+  const saved=localStorage.getItem(TK);
+  if(saved==='light'||saved==='dark')applyTheme(saved,false);
+  else{
+    const meta=document.getElementById('meta-theme');
+    if(meta)meta.content=isDark()?'#090909':'#FAFAFA';
+  }
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{
+    if(localStorage.getItem(TK))return;
+    applyTheme(e.matches?'dark':'light',false);
+  });
+}
 
 const MUSCLE_MAP={
   'Back':['underhand pulldown','low row','wide row','wide grip row','high row','rev pec deck','reverse pec deck','pullover','pulldown'],
@@ -283,7 +589,12 @@ const MUSCLE_MAP={
   'Legs':['leg extension','leg curl','adductor','abductor','squat','calf raise'],
   'Core':['abs']
 };
-const MC={'Back':'#3B6D11','Chest':'#185FA5','Shoulders':'#854F0B','Arms':'#993556','Legs':'#BA7517','Core':'#5F5E5A','Other':'#888780'};
+
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toast._tm);toast._tm=setTimeout(()=>t.classList.remove('show'),2800);
+}
 
 function getMuscle(n){
   const name=n.toLowerCase();
@@ -292,22 +603,11 @@ function getMuscle(n){
   }
   return 'Other';
 }
-function wVol(w){return w.exercises.reduce((a,e)=>a+e.sets.reduce((b,s)=>b+(parseFloat(s.weight)||0)*(parseInt(s.reps)||0),0),0)}
-function wColor(name){
-  const n=name.toLowerCase();
-  if(n.includes('back'))return{bg:'#EAF3DE',bd:'#639922'};
-  if(n.includes('chest'))return{bg:'#dbeafe',bd:'#378ADD'};
-  if(n.includes('leg'))return{bg:'#fef3c7',bd:'#BA7517'};
-  if(n.includes('arm'))return{bg:'#fce7f3',bd:'#D4537E'};
-  if(n.includes('upper'))return{bg:'#dbeafe',bd:'#378ADD'};
-  return{bg:'#f0f0ee',bd:'#888780'};
-}
+function wVol(w){return w.exercises.reduce((a,e)=>a+e.sets.reduce((b,s)=>b+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0),0),0)}
 
-// Recent exercises — UI state only, stays in localStorage
 function loadRecent(){try{const r=localStorage.getItem(RK);if(r)recent=JSON.parse(r)}catch(e){recent=[]}}
 function saveRecent(){try{localStorage.setItem(RK,JSON.stringify(recent))}catch(e){}}
 
-// API — Google Apps Script web app
 async function apiGet(){
   const res=await fetch(API_URL);
   const data=await res.json();
@@ -315,7 +615,6 @@ async function apiGet(){
   return data.workouts;
 }
 async function apiPost(wks){
-  // text/plain avoids a CORS preflight; GAS reads e.postData.contents regardless of content-type
   const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({workouts:wks})});
   const data=await res.json();
   if(!data.ok)throw new Error(data.error||'API error');
@@ -323,20 +622,15 @@ async function apiPost(wks){
 
 async function boot(){
   loadRecent();
-  const bs=document.getElementById('boot-screen');
-  bs.textContent='Loading lift...';
-  try{
-    workouts=await apiGet();
-  }catch(e){
-    bs.innerHTML=`<div style="color:#dc2626;font-size:14px">Could not load workouts: ${e.message}<br><small style="color:#aaa">Check that API_URL is set and the script is deployed.</small></div>`;
+  try{workouts=await apiGet()}catch(e){
+    document.getElementById('boot-screen').innerHTML=`<div class="boot-mark">lift<em>.</em></div><div style="color:var(--danger);font-size:14px;max-width:320px;text-align:center;line-height:1.5">Could not load workouts.<br><span style="color:var(--text-3);font-size:13px">${esc(e.message)}</span></div>`;
     return;
   }
-  bs.style.display='none';
+  document.getElementById('boot-screen').style.display='none';
   document.getElementById('app').style.display='block';
   initLog();renderPills();
 }
 
-// ── LOG ──
 function initLog(){
   const d=new Date();
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -348,8 +642,8 @@ function initLog(){
 }
 function renderPills(){
   const defaults=['Squat','Bench Press','Deadlift','OHP','Pull-up','Row','RDL','Incline Press'];
-  const all=[...new Set([...recent.slice(0,6),...defaults])].slice(0,9);
-  document.getElementById('quick-pills').innerHTML=all.map(e=>`<span class="pill" onclick="quickAdd('${e.replace(/'/g,"\\'")}')">${e}</span>`).join('');
+  const all=[...new Set([...recent.slice(0,6),...defaults])].slice(0,8);
+  document.getElementById('quick-pills').innerHTML=all.map(e=>`<button type="button" class="pill" onclick="quickAdd('${e.replace(/'/g,"\\'")}')">${esc(e)}</button>`).join('');
 }
 function quickAdd(name){document.getElementById('ex-inp').value=name;doAdd()}
 function doAdd(){
@@ -367,76 +661,70 @@ function renderExList(){
   const c=document.getElementById('ex-list');
   if(!session.exercises.length){c.innerHTML='';return}
   c.innerHTML=session.exercises.map((ex,i)=>`
-    <div class="ex-card">
-      <div class="ex-head">
-        <div class="ex-head-name"><span class="gdot"></span>${ex.name}</div>
-        <button class="btn-danger-sm" onclick="rmEx(${i})">Remove</button>
+    <article class="ex-block">
+      <div class="ex-block-head">
+        <div class="ex-title">${esc(ex.name)}</div>
+        <button type="button" class="btn-text danger" onclick="rmEx(${i})">Remove</button>
       </div>
-      <div class="ex-sets">
-        <div class="set-cols" style="margin-bottom:4px">
-          <span class="col-lbl"></span><span class="col-lbl">Reps</span><span class="col-lbl">Weight</span><span class="col-lbl">Note</span><span></span>
-        </div>
-        ${ex.sets.map((s,j)=>`<div class="set-cols">
-          <div class="set-n">${j+1}</div>
-          <input class="set-inp" type="number" min="0" placeholder="0" value="${s.reps}" oninput="upd(${i},${j},'reps',this.value)" />
-          <input class="set-inp" type="number" min="0" placeholder="0" value="${s.weight}" oninput="upd(${i},${j},'weight',this.value)" />
-          <input class="set-inp" type="text" placeholder="—" value="${s.note}" oninput="upd(${i},${j},'note',this.value)" />
-          <div class="rm-set" onclick="rmSet(${i},${j})">×</div>
-        </div>`).join('')}
+      <div class="set-grid set-grid-h">
+        <span class="col-h">Set</span><span class="col-h">Reps</span><span class="col-h">Weight</span><span class="col-h">Note</span><span></span>
       </div>
-      <div class="add-set-row">
-        <button class="ghost-btn" onclick="addSet(${i})">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#3B6D11" stroke-width="1.2"/><path d="M7 4v6M4 7h6" stroke="#3B6D11" stroke-width="1.2" stroke-linecap="round"/></svg>
-          Add set
-        </button>
+      ${ex.sets.map((s,j)=>`<div class="set-grid">
+        <div class="set-idx">${j+1}</div>
+        <input class="set-inp" type="text" inputmode="decimal" placeholder="—" value="${esc(s.reps)}" oninput="upd(${i},${j},'reps',this.value)" />
+        <input class="set-inp" type="text" inputmode="decimal" placeholder="—" value="${esc(s.weight)}" oninput="upd(${i},${j},'weight',this.value)" />
+        <input class="set-inp" type="text" placeholder="—" value="${esc(s.note)}" oninput="upd(${i},${j},'note',this.value)" />
+        <button type="button" class="rm-set" onclick="rmSet(${i},${j})" aria-label="Remove set">×</button>
+      </div>`).join('')}
+      <div class="ex-foot">
+        <button type="button" class="ghost-btn" onclick="addSet(${i})">+ Add set</button>
       </div>
-    </div>`).join('');
+    </article>`).join('');
 }
 async function doSave(){
-  if(!session.exercises.length){alert('Add at least one exercise.');return}
+  if(!session.exercises.length){toast('Add at least one exercise');return}
   const name=document.getElementById('sn').value.trim()||'Workout';
-  const btn=document.querySelector('.btn-save');
-  btn.disabled=true;btn.textContent='Saving...';
+  const btn=document.getElementById('btn-save-workout');
+  btn.disabled=true;btn.textContent='Saving…';
   const entry={id:Date.now(),name,date:new Date().toISOString(),exercises:JSON.parse(JSON.stringify(session.exercises))};
   workouts.unshift(entry);
   try{
     await apiPost(workouts);
     saveRecent();
     btn.disabled=false;btn.textContent='Save workout';
-    alert(`"${name}" saved.`);initLog();
+    toast(`Saved “${name}”`);initLog();
   }catch(e){
-    workouts.shift(); // rollback
+    workouts.shift();
     btn.disabled=false;btn.textContent='Save workout';
-    alert('Save failed: '+e.message);
+    toast('Save failed — '+e.message);
   }
 }
 
-// ── NAV ──
-let tabBtns=[];
 function goTab(tab,el){
-  document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));
-  if(el)el.classList.add('on');
+  document.querySelectorAll('.tb,.tb-m').forEach(t=>t.classList.toggle('on',t.dataset.tab===tab));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.getElementById('v-'+tab).classList.add('on');
   if(tab==='history')renderHist();
   if(tab==='dashboard')renderDashboard();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 function goTabById(tab){
-  const idx={'log':0,'history':1,'dashboard':2,'import':3}[tab];
-  const btns=document.querySelectorAll('.tb');
-  goTab(tab,btns[idx]);
+  goTab(tab,document.querySelector(`[data-tab="${tab}"]`));
 }
 
-// ── HISTORY ──
 function renderHist(){
   const el=document.getElementById('hist-content');
-  if(!workouts.length){el.innerHTML='<div class="empty">No workouts yet.</div>';return}
-  el.innerHTML=`<div class="card" style="padding:0 1.25rem">`+workouts.map((w,i)=>{
-    const d=new Date(w.date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  if(!workouts.length){el.innerHTML='<div class="empty"><strong>No sessions yet</strong>Log a workout or import CSV.</div>';return}
+  el.innerHTML=`<div class="surface-card">`+workouts.map((w,i)=>{
+    const d=new Date(w.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
     const sets=w.exercises.reduce((a,e)=>a+e.sets.filter(s=>s.reps).length,0);
     return `<div class="hist-item" onclick="showDetail(${i})">
-      <div><div class="hist-name">${w.name}</div><div class="hist-exs">${w.exercises.map(e=>e.name).join(' · ')}</div></div>
+      <div style="min-width:0;flex:1">
+        <div class="hist-name">${esc(w.name)}</div>
+        <div class="hist-exs">${esc(w.exercises.map(e=>e.name).join(' · '))}</div>
+      </div>
       <div class="hist-meta"><div class="hist-date">${d}</div><div class="hist-sets">${sets} sets</div></div>
+      <span class="hist-chevron" aria-hidden="true">›</span>
     </div>`;
   }).join('')+'</div>';
 }
@@ -446,112 +734,114 @@ function showDetail(idx){
   const vol=Math.round(wVol(w));
   const sets=w.exercises.reduce((a,e)=>a+e.sets.filter(s=>s.reps).length,0);
   document.getElementById('hist-content').innerHTML=`
-    <button class="back-btn" onclick="renderHist()">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>Back
-    </button>
-    <div class="detail-date">${d}</div>
-    <div class="detail-name">${w.name}</div>
-    <div style="margin-bottom:1.5rem">
+    <button type="button" class="back-btn" onclick="renderHist()">← All sessions</button>
+    <div class="detail-date">${esc(d)}</div>
+    <h2 class="detail-name">${esc(w.name)}</h2>
+    <div class="stat-row">
       <span class="badge">${w.exercises.length} exercises</span>
       <span class="badge">${sets} sets</span>
       ${vol>0?`<span class="badge">${vol.toLocaleString()} lbs</span>`:''}
     </div>
     ${w.exercises.map(ex=>`
-      <div class="ex-card" style="margin-bottom:10px">
-        <div class="ex-head"><div class="ex-head-name"><span class="gdot"></span>${ex.name}</div></div>
-        <div class="ex-sets">
-          <div class="set-cols" style="margin-bottom:4px"><span class="col-lbl"></span><span class="col-lbl">Reps</span><span class="col-lbl">Weight</span><span class="col-lbl">Note</span><span></span></div>
-          ${ex.sets.map((s,j)=>`<div class="set-cols">
-            <div class="set-n">${j+1}</div>
-            <div style="text-align:center;font-size:14px">${s.reps||'—'}</div>
-            <div style="text-align:center;font-size:14px">${s.weight?s.weight+' lbs':'—'}</div>
-            <div style="font-size:13px;color:#888">${s.note||''}</div>
-            <div></div>
-          </div>`).join('')}
+      <article class="ex-block" style="margin-bottom:10px">
+        <div class="ex-block-head"><div class="ex-title">${esc(ex.name)}</div></div>
+        <div class="set-grid set-grid-h">
+          <span class="col-h">Set</span><span class="col-h">Reps</span><span class="col-h">Weight</span><span class="col-h">Note</span><span></span>
         </div>
-      </div>`).join('')}
-    <button class="btn-danger-sm" onclick="delWorkout(${idx})" style="margin-top:8px">Delete workout</button>`;
+        ${ex.sets.map((s,j)=>`<div class="set-grid">
+          <div class="set-idx">${j+1}</div>
+          <div class="set-read">${esc(s.reps||'—')}</div>
+          <div class="set-read">${s.weight?esc(s.weight)+' lb':'—'}</div>
+          <div class="set-note">${esc(s.note||'')}</div>
+          <div></div>
+        </div>`).join('')}
+      </article>`).join('')}
+    <button type="button" class="btn btn-secondary btn-sm" style="color:var(--danger);border-color:rgba(185,28,28,.2);margin-top:8px" onclick="delWorkout(${idx})">Delete session</button>`;
 }
 async function delWorkout(idx){
   if(!confirm('Delete this workout?'))return;
   const removed=workouts.splice(idx,1);
-  try{await apiPost(workouts);renderHist();}
-  catch(e){workouts.splice(idx,0,...removed);alert('Delete failed: '+e.message);}
+  try{await apiPost(workouts);renderHist();toast('Session deleted');}
+  catch(e){workouts.splice(idx,0,...removed);toast('Delete failed');}
 }
 
-// ── DASHBOARD ──
+function chartDefaults(){
+  const tick=cssVar('--text-3')||'#A3A3A3';
+  const grid=cssVar('--chart-grid')||'rgba(0,0,0,.05)';
+  return{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:{display:false},ticks:{font:{family:'Inter',size:11},color:tick}},
+      y:{grid:{color:grid},ticks:{font:{family:'Inter',size:11},color:tick},border:{display:false}}
+    }
+  };
+}
+
 function renderDashboard(){
   const sorted=[...workouts].sort((a,b)=>new Date(a.date)-new Date(b.date));
   if(!sorted.length){
-    document.getElementById('db-metrics').innerHTML='<div class="empty" style="grid-column:1/-1">No workouts yet. Import your CSV or log a session.</div>';
+    document.getElementById('db-metrics').innerHTML='<div class="empty" style="grid-column:1/-1"><strong>No data yet</strong>Log or import to see stats.</div>';
     document.getElementById('db-log').innerHTML='';
     return;
   }
   const totalSets=sorted.reduce((a,w)=>a+w.exercises.reduce((b,e)=>b+e.sets.filter(s=>s.reps).length,0),0);
   const totalVol=sorted.reduce((a,w)=>a+wVol(w),0);
   document.getElementById('db-metrics').innerHTML=`
-    <div class="mc"><div class="mc-l">Workouts</div><div class="mc-v">${sorted.length}</div></div>
-    <div class="mc"><div class="mc-l">Total sets</div><div class="mc-v">${totalSets}</div></div>
-    <div class="mc"><div class="mc-l">Total volume</div><div class="mc-v">${Math.round(totalVol/1000).toLocaleString()}<span class="mc-u">k lbs</span></div></div>
-    <div class="mc"><div class="mc-l">Avg / session</div><div class="mc-v">${(totalVol/sorted.length/1000).toFixed(1)}<span class="mc-u">k lbs</span></div></div>
+    <div class="mc"><div class="mc-l">Sessions</div><div class="mc-v">${sorted.length}</div></div>
+    <div class="mc"><div class="mc-l">Sets</div><div class="mc-v">${totalSets}</div></div>
+    <div class="mc"><div class="mc-l">Volume</div><div class="mc-v">${Math.round(totalVol/1000).toLocaleString()}<span class="mc-u">k</span></div></div>
+    <div class="mc"><div class="mc-l">Avg</div><div class="mc-v">${(totalVol/sorted.length/1000).toFixed(1)}<span class="mc-u">k</span></div></div>
   `;
 
   if(volChartInst){volChartInst.destroy();volChartInst=null;}
-  const colors=sorted.map(w=>wColor(w.name));
+  const barHi=cssVar('--chart-bar-hi');
+  const barDim=cssVar('--chart-bar-dim');
+  const barColor=sorted.map((_,i)=>i===sorted.length-1?barHi:barDim);
+  const MC=muscleColors();
   volChartInst=new Chart(document.getElementById('vol-chart').getContext('2d'),{
     type:'bar',
     data:{
       labels:sorted.map(w=>new Date(w.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})),
-      datasets:[{data:sorted.map(w=>Math.round(wVol(w))),backgroundColor:colors.map(c=>c.bg),borderColor:colors.map(c=>c.bd),borderWidth:1.5,borderRadius:4}]
+      datasets:[{data:sorted.map(w=>Math.round(wVol(w))),backgroundColor:barColor,borderRadius:6,borderSkipped:false}]
     },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y.toLocaleString()} lbs`}}},
-      scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#aaa'}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11},color:'#aaa',callback:v=>`${Math.round(v/1000)}k`},border:{display:false}}}}
+    options:{...chartDefaults(),plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y.toLocaleString()} lbs`}}},scales:{...chartDefaults().scales,y:{...chartDefaults().scales.y,ticks:{...chartDefaults().scales.y.ticks,callback:v=>`${Math.round(v/1000)}k`}}}}
   });
 
   const muscleVol={},muscleSets={};
   sorted.forEach(w=>w.exercises.forEach(ex=>{
     const m=getMuscle(ex.name);
-    muscleVol[m]=(muscleVol[m]||0)+ex.sets.reduce((a,s)=>a+(parseFloat(s.weight)||0)*(parseInt(s.reps)||0),0);
+    muscleVol[m]=(muscleVol[m]||0)+ex.sets.reduce((a,s)=>a+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0),0);
     muscleSets[m]=(muscleSets[m]||0)+ex.sets.filter(s=>s.reps).length;
   }));
-
   const volOrder=Object.entries(muscleVol).sort((a,b)=>b[1]-a[1]);
   if(muscleChartInst){muscleChartInst.destroy();muscleChartInst=null;}
   muscleChartInst=new Chart(document.getElementById('muscle-chart').getContext('2d'),{
     type:'doughnut',
-    data:{labels:volOrder.map(([m])=>m),datasets:[{data:volOrder.map(([,v])=>Math.round(v)),backgroundColor:volOrder.map(([m])=>MC[m]||'#888'),borderColor:'#fff',borderWidth:2,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${(ctx.parsed/1000).toFixed(1)}k lbs`}}}}
+    data:{labels:volOrder.map(([m])=>m),datasets:[{data:volOrder.map(([,v])=>Math.round(v)),backgroundColor:volOrder.map(([m])=>MC[m]||'#D4D4D4'),borderWidth:0,hoverOffset:2}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${(ctx.parsed/1000).toFixed(1)}k lbs`}}}}
   });
-  document.getElementById('muscle-legend').innerHTML=volOrder.map(([m])=>`<div class="legend-item"><span class="cdot" style="background:${MC[m]||'#888'}"></span>${m}</div>`).join('');
+  document.getElementById('muscle-legend').innerHTML=volOrder.map(([m])=>`<div class="legend-item"><span class="cdot" style="background:${MC[m]||'#D4D4D4'}"></span>${esc(m)}</div>`).join('');
 
-  const maxSets=Math.max(...Object.values(muscleSets));
+  const maxSets=Math.max(...Object.values(muscleSets),1);
   document.getElementById('muscle-bars').innerHTML=Object.entries(muscleSets).sort((a,b)=>b[1]-a[1]).map(([m,s])=>`
     <div class="bar-wrap">
-      <div class="bar-label"><span class="cdot" style="background:${MC[m]||'#888'}"></span><span>${m}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(s/maxSets*100)}%;background:${MC[m]||'#888'}"></div></div>
-      <div class="bar-val">${s} sets</div>
+      <div class="bar-label"><span class="cdot" style="background:${MC[m]||'#D4D4D4'}"></span><span>${esc(m)}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(s/maxSets*100)}%"></div></div>
+      <div class="bar-val">${s}</div>
     </div>`).join('');
 
   document.getElementById('db-log').innerHTML=[...sorted].reverse().map(w=>{
-    const d=new Date(w.date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const d=new Date(w.date).toLocaleDateString('en-US',{month:'short',day:'numeric'});
     const vol=Math.round(wVol(w));
     const sets=w.exercises.reduce((a,e)=>a+e.sets.filter(s=>s.reps).length,0);
-    const c=wColor(w.name);
     return `<div class="wk-row">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="cdot" style="background:${c.bd}"></span>
-        <span style="font-weight:500">${w.name}</span>
-        <span style="color:#bbb;font-size:12px">${sets} sets</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:16px">
-        <span style="color:#888">${vol>0?vol.toLocaleString()+' lbs':'—'}</span>
-        <span style="color:#bbb">${d}</span>
-      </div>
+      <div><span class="wk-name">${esc(w.name)}</span> <span class="wk-muted">${sets} sets</span></div>
+      <div class="wk-muted">${vol>0?vol.toLocaleString()+' lbs · ':''}${d}</div>
     </div>`;
   }).join('');
 }
 
-// ── IMPORT ──
 function dzEv(e,cls){e.preventDefault();document.getElementById('drop-zone').className='drop-zone'+(cls?' '+cls:'')}
 function onDrop(e){e.preventDefault();document.getElementById('drop-zone').className='drop-zone';const f=e.dataTransfer.files[0];if(f)processFile(f)}
 function onFile(e){const f=e.target.files[0];if(f)processFile(f)}
@@ -595,44 +885,35 @@ function parseCSV(text){
 }
 
 function processFile(file){
-  if(!file.name.endsWith('.csv')){document.getElementById('upload-error').innerHTML=`<div class="error-box">Please upload a .csv file.</div>`;return}
+  if(!file.name.endsWith('.csv')){document.getElementById('upload-error').innerHTML=`<div class="msg-error">Please upload a .csv file.</div>`;return}
   const reader=new FileReader();
   reader.onload=e=>{
     const{errors,workouts:wks}=parseCSV(e.target.result);
-    if(!wks.length&&errors.length){document.getElementById('upload-error').innerHTML=`<div class="error-box">${errors[0]}</div>`;return}
+    if(!wks.length&&errors.length){document.getElementById('upload-error').innerHTML=`<div class="msg-error">${esc(errors[0])}</div>`;return}
     parsed=wks;showPreview(errors,wks);
   };
   reader.readAsText(file);
 }
 
 function showPreview(errors,wks){
-  document.getElementById('import-upload').style.display='none';
-  document.getElementById('import-preview').style.display='block';
-  document.getElementById('preview-title').textContent=`${wks.length} workout${wks.length!==1?'s':''} ready to import`;
-  document.getElementById('preview-sub').textContent=`${wks.reduce((a,w)=>a+w.exercises.length,0)} exercises · ${wks.reduce((a,w)=>a+w.exercises.reduce((b,e)=>b+e.sets.length,0),0)} sets total`;
-  document.getElementById('preview-errors').innerHTML=errors.map(e=>`<div class="error-box">${e}</div>`).join('');
+  document.getElementById('import-upload').hidden=true;
+  document.getElementById('import-preview').hidden=false;
+  document.getElementById('preview-title').textContent=`${wks.length} session${wks.length!==1?'s':''} ready`;
+  document.getElementById('preview-sub').textContent=`${wks.reduce((a,w)=>a+w.exercises.length,0)} exercises · ${wks.reduce((a,w)=>a+w.exercises.reduce((b,e)=>b+e.sets.length,0),0)} sets`;
+  document.getElementById('preview-errors').innerHTML=errors.map(e=>`<div class="msg-error">${esc(e)}</div>`).join('');
   document.getElementById('preview-list').innerHTML=wks.map(w=>{
-    const d=new Date(w.date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+    const d=new Date(w.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
     const sets=w.exercises.reduce((a,e)=>a+e.sets.length,0);
     return `<div class="preview-card">
-      <div class="preview-head">
-        <div class="preview-name">${w.name}</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#888">${d}<span class="badge" style="margin:0">${sets} sets</span></div>
-      </div>
-      <div class="preview-body">
-        ${w.exercises.map(ex=>`<div class="preview-ex">
-          <span style="color:#1a1a1a;min-width:140px">${ex.name}</span>
-          <span>${ex.sets.length} set${ex.sets.length!==1?'s':''}</span>
-          <span style="color:#bbb">${ex.sets.map(s=>s.reps+'×').join(' ')}</span>
-        </div>`).join('')}
-      </div>
+      <div class="preview-head"><div class="preview-name">${esc(w.name)}</div><span class="wk-muted">${d} · ${sets} sets</span></div>
+      <div class="preview-body">${w.exercises.map(ex=>`<div class="preview-ex"><span>${esc(ex.name)}</span><span>${ex.sets.length} sets</span><span class="wk-muted">${esc(ex.sets.map(s=>s.reps+'×').join(' '))}</span></div>`).join('')}</div>
     </div>`;
   }).join('');
 }
 
 async function doImport(){
   const btn=document.getElementById('import-btn');
-  btn.disabled=true;btn.textContent='Saving...';
+  btn.disabled=true;btn.textContent='Saving…';
   const prev=workouts.slice();
   const merged=[...parsed,...workouts];
   merged.sort((a,b)=>new Date(b.date)-new Date(a.date));
@@ -640,25 +921,27 @@ async function doImport(){
   const count=parsed.length;
   try{
     await apiPost(workouts);
-    document.getElementById('import-preview').style.display='none';
-    document.getElementById('import-success').style.display='block';
+    document.getElementById('import-preview').hidden=true;
+    document.getElementById('import-success').hidden=false;
     document.getElementById('success-count').textContent=count;
+    toast(`Imported ${count} session${count!==1?'s':''}`);
   }catch(e){
     workouts=prev;
     btn.disabled=false;btn.textContent='Import all';
-    alert('Import failed: '+e.message);
+    toast('Import failed');
   }
 }
 
 function resetImport(){
   parsed=[];
-  document.getElementById('import-preview').style.display='none';
-  document.getElementById('import-success').style.display='none';
-  document.getElementById('import-upload').style.display='block';
+  document.getElementById('import-preview').hidden=true;
+  document.getElementById('import-success').hidden=true;
+  document.getElementById('import-upload').hidden=false;
   document.getElementById('upload-error').innerHTML='';
   document.getElementById('file-inp').value='';
 }
 
+initTheme();
 boot();
 </script>
 </body>
