@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iron Log concepts</title>
+<style>
+*{box-sizing:border-box;margin:0}
+body{font-family:system-ui,sans-serif;background:#111;color:#eee;padding:16px 16px 40px}
+h1{font-size:20px;margin-bottom:8px}
+p{color:#999;font-size:14px;margin-bottom:20px;line-height:1.5}
+.grid{display:flex;flex-direction:column;gap:24px}
+.item h2{font-size:15px;margin-bottom:8px}
+img{width:100%;max-width:390px;border-radius:20px;display:block;border:1px solid #333}
+</style>
+</head>
+<body>
+<h1>Iron Log — 10 UI concepts</h1>
+<p>Phone mockups (390×844). Pinch to zoom each screen.</p>
+<div class="grid">
+<script>
+const items=[
+["01-strong-noir.png","Strong Noir","Dark Strong-style set table"],
+["02-hevy-signal.png","Hevy Signal","Light purple-accent cards"],
+["03-apple-rings.png","Apple Rings","Activity rings summary"],
+["04-swiss-ledger.png","Swiss Ledger","Typography-only ledger"],
+["05-stone-ink.png","Stone & Ink","Ship direction — stone + ink"],
+["06-mono-terminal.png","Mono Terminal","Terminal green grid"],
+["07-luxury-wellness.png","Luxury Wellness","Parchment editorial"],
+["08-thumb-gym.png","Thumb Gym","Huge touch targets"],
+["09-data-studio.png","Data Studio","Stats overview + sync"],
+["10-zen-set.png","Zen Set","One set focus"],
+];
+document.write(items.map(([f,n,d])=>`<section class="item"><h2>${n}</h2><p style="color:#777;font-size:13px;margin-bottom:8px">${d}</p><img src="screenshots/${f}" alt="${n}" loading="lazy"></section>`).join(''));
+</script>
+</div>
+</body>
+</html>
