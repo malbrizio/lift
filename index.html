@@ -3,14 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#FAFAFA">
+<meta name="theme-color" content="#FAFAFA" id="meta-theme">
 <title>lift</title>
+<script>
+(function(){
+  var k='lift_theme',s=localStorage.getItem(k);
+  var dark=s==='dark'||(s!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.dataset.theme=dark?'dark':'light';
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 :root{
+  color-scheme:light;
   --bg:#FAFAFA;
   --surface:#FFFFFF;
   --elevated:#FFFFFF;
@@ -20,11 +28,19 @@
   --line:rgba(10,10,10,.07);
   --line-strong:rgba(10,10,10,.12);
   --accent:#0A0A0A;
+  --accent-fg:#FFFFFF;
   --accent-soft:#F5F5F5;
   --brand:#3D5A30;
   --brand-muted:rgba(61,90,48,.12);
   --danger:#B91C1C;
   --danger-soft:rgba(185,28,28,.08);
+  --focus-ring:rgba(10,10,10,.06);
+  --nav-bg:rgba(250,250,250,.88);
+  --toast-bg:#0A0A0A;
+  --toast-fg:#FFFFFF;
+  --chart-grid:rgba(10,10,10,.05);
+  --chart-bar-dim:#E5E5E5;
+  --chart-bar-hi:#0A0A0A;
   --radius:14px;
   --radius-sm:10px;
   --radius-xs:8px;
@@ -36,6 +52,33 @@
   --nav-h:56px;
   --safe-b:env(safe-area-inset-bottom,0px);
 }
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#090909;
+  --surface:#121212;
+  --elevated:#181818;
+  --text:#F5F5F5;
+  --text-2:#A3A3A3;
+  --text-3:#737373;
+  --line:rgba(255,255,255,.08);
+  --line-strong:rgba(255,255,255,.14);
+  --accent:#F5F5F5;
+  --accent-fg:#0A0A0A;
+  --accent-soft:#1A1A1A;
+  --brand:#9BB884;
+  --brand-muted:rgba(155,184,132,.14);
+  --danger:#F87171;
+  --danger-soft:rgba(248,113,113,.12);
+  --focus-ring:rgba(255,255,255,.08);
+  --nav-bg:rgba(9,9,9,.92);
+  --toast-bg:#F5F5F5;
+  --toast-fg:#0A0A0A;
+  --chart-grid:rgba(255,255,255,.06);
+  --chart-bar-dim:#2A2A2A;
+  --chart-bar-hi:#F5F5F5;
+  --shadow:0 1px 2px rgba(0,0,0,.35);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.45);
+}
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.45;font-feature-settings:"cv01","ss01"}
@@ -45,14 +88,26 @@ button,input{font-family:inherit}
 /* Header */
 .site-head{
   position:sticky;top:0;z-index:40;
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:20px 0 16px;margin-bottom:8px;
   background:linear-gradient(to bottom,var(--bg) 70%,transparent);
   backdrop-filter:saturate(1.2) blur(8px);
 }
+.head-brand{display:flex;align-items:center;gap:10px;min-width:0}
 .wordmark{font-size:15px;font-weight:600;letter-spacing:-.04em;text-transform:lowercase;color:var(--text)}
 .wordmark em{font-style:normal;color:var(--brand)}
-.tabs-desktop{display:none;gap:2px}
+.theme-toggle{
+  width:36px;height:36px;border-radius:999px;border:1px solid var(--line);
+  background:var(--surface);color:var(--text-2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:background .15s,border-color .15s,color .15s;
+}
+.theme-toggle:hover{color:var(--text);border-color:var(--line-strong)}
+.theme-toggle svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5}
+.theme-toggle .icon-sun,.theme-toggle .icon-moon{display:none}
+:root[data-theme="light"] .theme-toggle .icon-moon{display:block}
+:root[data-theme="dark"] .theme-toggle .icon-sun{display:block}
+.tabs-desktop{display:none;gap:2px;margin-left:auto}
 @media(min-width:720px){
   .app{padding-bottom:48px}
   .tabs-desktop{display:flex}
@@ -73,7 +128,7 @@ button,input{font-family:inherit}
   position:fixed;left:0;right:0;bottom:0;z-index:50;
   display:flex;justify-content:space-around;align-items:stretch;
   height:calc(var(--nav-h) + var(--safe-b));padding-bottom:var(--safe-b);
-  background:rgba(250,250,250,.88);
+  background:var(--nav-bg);
   border-top:1px solid var(--line);
   backdrop-filter:blur(16px) saturate(1.4);
 }
@@ -133,7 +188,7 @@ button,input{font-family:inherit}
   background:var(--accent-soft);color:var(--text);outline:none;
   transition:border-color .15s,background .15s;
 }
-.set-inp:focus{background:var(--surface);border-color:var(--line-strong);box-shadow:0 0 0 3px rgba(10,10,10,.04)}
+.set-inp:focus{background:var(--surface);border-color:var(--line-strong);box-shadow:0 0 0 3px var(--focus-ring)}
 .set-inp::placeholder{color:var(--text-3);font-weight:400}
 .rm-set{
   width:28px;height:28px;border-radius:999px;border:none;background:transparent;
@@ -156,7 +211,7 @@ button,input{font-family:inherit}
   border:1px solid var(--line);background:var(--surface);color:var(--text);outline:none;
   transition:border-color .15s,box-shadow .15s;
 }
-.main-inp:focus{border-color:var(--line-strong);box-shadow:0 0 0 3px rgba(10,10,10,.04)}
+.main-inp:focus{border-color:var(--line-strong);box-shadow:0 0 0 3px var(--focus-ring)}
 .pill-row{display:flex;flex-wrap:wrap;gap:6px}
 .pill{
   font-size:12px;font-weight:500;padding:7px 12px;border-radius:999px;
@@ -171,7 +226,7 @@ button,input{font-family:inherit}
   transition:transform .12s,opacity .15s,background .15s;
 }
 .btn:active{transform:scale(.98)}
-.btn-primary{background:var(--accent);color:#fff}
+.btn-primary{background:var(--accent);color:var(--accent-fg)}
 .btn-primary:hover{opacity:.92}
 .btn-primary:disabled{opacity:.35;cursor:not-allowed}
 .btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--line)}
@@ -309,7 +364,7 @@ button,input{font-family:inherit}
 .toast{
   position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-12px);
   z-index:100;padding:12px 18px;border-radius:999px;font-size:13px;font-weight:500;
-  background:var(--text);color:#fff;box-shadow:var(--shadow-lg);
+  background:var(--toast-bg);color:var(--toast-fg);box-shadow:var(--shadow-lg);
   opacity:0;pointer-events:none;transition:opacity .25s,transform .25s var(--ease);
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -326,7 +381,13 @@ button,input{font-family:inherit}
 
 <div class="app" id="app" style="display:none">
   <header class="site-head">
-    <div class="wordmark">lift<em>.</em></div>
+    <div class="head-brand">
+      <div class="wordmark">lift<em>.</em></div>
+      <button type="button" class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1112.5 3a6.5 6.5 0 009 11.5z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap="round"/></svg>
+      </button>
+    </div>
     <nav class="tabs-desktop" aria-label="Main">
       <button type="button" class="tb on" data-tab="log" onclick="goTab('log',this)">Log</button>
       <button type="button" class="tb" data-tab="history" onclick="goTab('history',this)">History</button>
@@ -488,12 +549,37 @@ button,input{font-family:inherit}
 <script>
 const API_URL='https://script.google.com/macros/s/AKfycbzCeQkyS0m0ULnGyuXLDSsscsZQPOuGstpKJjqCW-HPtDYYNHgefl--20DsW1fzZl8U/exec';
 const RK='wt_recent_v2';
+const TK='lift_theme';
 let workouts=[], recent=[], session={name:'',exercises:[]}, parsed=[];
 let volChartInst=null, muscleChartInst=null;
 
-const CHART_GRID='rgba(10,10,10,0.05)';
-const CHART_TICK='#A3A3A3';
-const MUSCLE_COLORS={'Back':'#3D5A30','Chest':'#404040','Shoulders':'#737373','Arms':'#525252','Legs':'#8A8A8A','Core':'#B0B0B0','Other':'#D4D4D4'};
+const MUSCLE_LIGHT={'Back':'#3D5A30','Chest':'#404040','Shoulders':'#737373','Arms':'#525252','Legs':'#8A8A8A','Core':'#B0B0B0','Other':'#D4D4D4'};
+const MUSCLE_DARK={'Back':'#9BB884','Chest':'#D4D4D4','Shoulders':'#A3A3A3','Arms':'#B0B0B0','Legs':'#8A8A8A','Core':'#737373','Other':'#525252'};
+function isDark(){return document.documentElement.dataset.theme==='dark'}
+function muscleColors(){return isDark()?MUSCLE_DARK:MUSCLE_LIGHT}
+function cssVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim()}
+function applyTheme(theme,persist){
+  document.documentElement.dataset.theme=theme;
+  const meta=document.getElementById('meta-theme');
+  if(meta)meta.content=theme==='dark'?'#090909':'#FAFAFA';
+  if(persist)localStorage.setItem(TK,theme);
+  if(document.getElementById('v-dashboard').classList.contains('on'))renderDashboard();
+}
+function toggleTheme(){
+  applyTheme(isDark()?'light':'dark',true);
+}
+function initTheme(){
+  const saved=localStorage.getItem(TK);
+  if(saved==='light'||saved==='dark')applyTheme(saved,false);
+  else{
+    const meta=document.getElementById('meta-theme');
+    if(meta)meta.content=isDark()?'#090909':'#FAFAFA';
+  }
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{
+    if(localStorage.getItem(TK))return;
+    applyTheme(e.matches?'dark':'light',false);
+  });
+}
 
 const MUSCLE_MAP={
   'Back':['underhand pulldown','low row','wide row','wide grip row','high row','rev pec deck','reverse pec deck','pullover','pulldown'],
@@ -680,12 +766,14 @@ async function delWorkout(idx){
 }
 
 function chartDefaults(){
+  const tick=cssVar('--text-3')||'#A3A3A3';
+  const grid=cssVar('--chart-grid')||'rgba(0,0,0,.05)';
   return{
     responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:false}},
     scales:{
-      x:{grid:{display:false},ticks:{font:{family:'Inter',size:11},color:CHART_TICK}},
-      y:{grid:{color:CHART_GRID},ticks:{font:{family:'Inter',size:11},color:CHART_TICK},border:{display:false}}
+      x:{grid:{display:false},ticks:{font:{family:'Inter',size:11},color:tick}},
+      y:{grid:{color:grid},ticks:{font:{family:'Inter',size:11},color:tick},border:{display:false}}
     }
   };
 }
@@ -707,7 +795,10 @@ function renderDashboard(){
   `;
 
   if(volChartInst){volChartInst.destroy();volChartInst=null;}
-  const barColor=sorted.map((_,i)=>i===sorted.length-1?'#0A0A0A':'#E5E5E5');
+  const barHi=cssVar('--chart-bar-hi');
+  const barDim=cssVar('--chart-bar-dim');
+  const barColor=sorted.map((_,i)=>i===sorted.length-1?barHi:barDim);
+  const MC=muscleColors();
   volChartInst=new Chart(document.getElementById('vol-chart').getContext('2d'),{
     type:'bar',
     data:{
@@ -727,15 +818,15 @@ function renderDashboard(){
   if(muscleChartInst){muscleChartInst.destroy();muscleChartInst=null;}
   muscleChartInst=new Chart(document.getElementById('muscle-chart').getContext('2d'),{
     type:'doughnut',
-    data:{labels:volOrder.map(([m])=>m),datasets:[{data:volOrder.map(([,v])=>Math.round(v)),backgroundColor:volOrder.map(([m])=>MUSCLE_COLORS[m]||'#D4D4D4'),borderWidth:0,hoverOffset:2}]},
+    data:{labels:volOrder.map(([m])=>m),datasets:[{data:volOrder.map(([,v])=>Math.round(v)),backgroundColor:volOrder.map(([m])=>MC[m]||'#D4D4D4'),borderWidth:0,hoverOffset:2}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${(ctx.parsed/1000).toFixed(1)}k lbs`}}}}
   });
-  document.getElementById('muscle-legend').innerHTML=volOrder.map(([m])=>`<div class="legend-item"><span class="cdot" style="background:${MUSCLE_COLORS[m]||'#D4D4D4'}"></span>${esc(m)}</div>`).join('');
+  document.getElementById('muscle-legend').innerHTML=volOrder.map(([m])=>`<div class="legend-item"><span class="cdot" style="background:${MC[m]||'#D4D4D4'}"></span>${esc(m)}</div>`).join('');
 
   const maxSets=Math.max(...Object.values(muscleSets),1);
   document.getElementById('muscle-bars').innerHTML=Object.entries(muscleSets).sort((a,b)=>b[1]-a[1]).map(([m,s])=>`
     <div class="bar-wrap">
-      <div class="bar-label"><span class="cdot" style="background:${MUSCLE_COLORS[m]||'#D4D4D4'}"></span><span>${esc(m)}</span></div>
+      <div class="bar-label"><span class="cdot" style="background:${MC[m]||'#D4D4D4'}"></span><span>${esc(m)}</span></div>
       <div class="bar-track"><div class="bar-fill" style="width:${Math.round(s/maxSets*100)}%"></div></div>
       <div class="bar-val">${s}</div>
     </div>`).join('');
@@ -850,6 +941,7 @@ function resetImport(){
   document.getElementById('file-inp').value='';
 }
 
+initTheme();
 boot();
 </script>
 </body>
