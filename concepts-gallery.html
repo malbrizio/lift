@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iron Log — 10 UI Concepts</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:#111;color:#f5f5f5;padding:20px 16px 40px;line-height:1.4}
+h1{font-size:22px;font-weight:600;letter-spacing:-0.03em;margin-bottom:6px}
+.lead{color:#a3a3a3;font-size:14px;margin-bottom:24px;max-width:36em}
+.grid{display:flex;flex-direction:column;gap:28px}
+.card{background:#1a1a1a;border:1px solid #333;border-radius:16px;padding:16px}
+.card h2{font-size:16px;font-weight:600;margin-bottom:4px}
+.meta{font-size:12px;color:#737373;margin-bottom:12px}
+.phone{width:100%;max-width:320px;margin:0 auto;border-radius:28px;padding:10px;background:#0a0a0a;border:1px solid #404040}
+.screen{border-radius:20px;overflow:hidden;min-height:520px;display:flex;flex-direction:column;font-size:13px}
+/* concept themes */
+.c-strong{background:#1a1a1a;color:#f5f5f5}
+.c-strong .acc{color:#2f80ed}
+.c-strong .cell{background:#2e2e2e;border-radius:6px;padding:8px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+.c-strong .done{background:rgba(39,174,96,.22)}
+.c-hevy{background:#f4f4f5;color:#18181b}
+.c-hevy .pill{background:#e4e4e7;border-radius:999px;padding:4px 10px;font-size:11px;display:inline-block;margin:2px}
+.c-hevy .acc{color:#7c3aed}
+.c-apple{background:#000;color:#fff}
+.c-apple .ring{width:72px;height:72px;border-radius:50%;border:6px solid #fa114f;margin:8px auto}
+.c-swiss{background:#fff;color:#0a0a0a;border:1px solid #e5e5e5}
+.c-swiss .rule{border-top:1px solid #e5e5e5;margin:8px 0}
+.c-stone{background:#fafaf9;color:#0a0a0a}
+.c-stone .inp{background:#f5f5f4;border-radius:10px;padding:10px;margin:4px 0}
+.c-mono{background:#0d0d0d;color:#3dff8a;font-family:ui-monospace,monospace}
+.c-lux{background:#f5f0e8;color:#292524}
+.c-lux h3{font-family:Georgia,serif;font-weight:400;font-size:22px}
+.c-thumb .big{min-height:44px;font-size:18px;font-weight:600}
+.c-data{background:#f8fafc;color:#0f172a}
+.c-data .kpi{font-size:28px;font-weight:700;letter-spacing:-0.04em}
+.c-zen{background:#eceff1;color:#37474f;display:flex;align-items:center;justify-content:center;text-align:center;padding:40px 20px}
+.c-zen .num{font-size:48px;font-weight:600;letter-spacing:-0.05em}
+.top{padding:14px 16px 8px;display:flex;justify-content:space-between;align-items:center}
+.title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;opacity:.6}
+.body{padding:0 16px 16px;flex:1}
+.btn{margin:12px 16px 16px;padding:14px;border-radius:999px;text-align:center;font-weight:600;font-size:14px}
+.nav{display:flex;justify-content:space-around;padding:10px 8px 14px;border-top:1px solid rgba(128,128,128,.25);font-size:10px;opacity:.7}
+.row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+.tag{display:inline-block;font-size:10px;padding:3px 8px;border-radius:999px;background:rgba(128,128,128,.2);margin-top:8px}
+</style>
+</head>
+<body>
+<h1>Iron Log — 10 concepts</h1>
+<p class="lead">Mobile preview boards for design review. Tap and scroll — save screenshots from your browser if needed.</p>
+<div class="grid" id="grid"></div>
+<script>
+const concepts=[
+  {id:1,name:"Strong Noir",fit:92,note:"Set table + Previous column + dark instrument panel",
+   html:`<div class="screen c-strong"><div class="top"><span class="title">Workout</span><span class="acc">Finish</span></div><div class="body"><div style="font-size:20px;font-weight:800;margin-bottom:8px">Push Day</div><div class="row" style="grid-template-columns:repeat(3,1fr);font-size:11px;opacity:.7"><div>Time</div><div>Volume</div><div>Sets</div></div><div style="margin:12px 0;height:3px;background:#333;border-radius:2px"><div style="width:45%;height:100%;background:#2f80ed;border-radius:2px"></div></div><div class="acc" style="font-weight:700;margin-bottom:8px">Bench Press</div><div style="display:grid;grid-template-columns:24px 1fr 1fr 1fr 24px;gap:4px;font-size:10px;opacity:.5;margin-bottom:4px"><span>#</span><span>Prev</span><span>kg</span><span>Reps</span><span></span></div><div style="display:grid;grid-template-columns:24px 1fr 1fr 1fr 24px;gap:4px;margin-bottom:4px"><span>1</span><div class="cell" style="font-size:11px;opacity:.6">80×8</div><div class="cell">82.5</div><div class="cell">8</div><span>✓</span></div><div style="display:grid;grid-template-columns:24px 1fr 1fr 1fr 24px;gap:4px"><span>2</span><div class="cell" style="font-size:11px;opacity:.6">80×8</div><div class="cell done">82.5</div><div class="cell done">8</div><span style="color:#27ae60">✓</span></div></div><div class="nav"><span class="acc">Log</span><span>History</span><span>Exercises</span><span>Settings</span></div></div>`},
+  {id:2,name:"Hevy Signal",fit:78,note:"Muscle color + modern cards",
+   html:`<div class="screen c-hevy"><div class="top"><span style="font-weight:700">Hevy-style</span><span class="acc">●</span></div><div class="body"><div style="font-weight:600;font-size:18px">Leg Day</div><span class="pill">Squat</span><span class="pill">RDL</span><div style="margin-top:12px;padding:12px;background:#fff;border-radius:14px;border:1px solid #e4e4e7"><div style="font-weight:600;margin-bottom:8px">Squat <span style="color:#7c3aed">● Legs</span></div><div class="row"><div class="cell" style="background:#f4f4f5">Set 1</div><div class="cell" style="background:#f4f4f5">225×5</div></div></div></div><div class="btn" style="background:#18181b;color:#fff">Log set</div><div class="nav"><span>Home</span><span class="acc">Workout</span><span>Social</span><span>Profile</span></div></div>`},
+  {id:3,name:"Apple Rings",fit:55,note:"Summary-first motivation",
+   html:`<div class="screen c-apple"><div class="top"><span class="title">Summary</span></div><div class="body" style="text-align:center"><div class="ring"></div><div style="font-size:22px;font-weight:700">Move</div><div style="opacity:.6;font-size:13px;margin-bottom:16px">620 / 800 kcal</div><div style="text-align:left;background:#1c1c1e;border-radius:12px;padding:12px">Workouts ›<div style="opacity:.5;font-size:12px;margin-top:4px">Push — 45 min</div></div></div><div class="nav"><span class="acc">Summary</span><span>Fitness+</span><span>Sharing</span></div></div>`},
+  {id:4,name:"Swiss Ledger",fit:88,note:"Typography-only hierarchy",
+   html:`<div class="screen c-swiss"><div class="top"><span style="font-weight:600;letter-spacing:-0.03em">Iron Log</span></div><div class="body"><div style="font-size:28px;font-weight:600;letter-spacing:-0.04em">Log</div><div class="rule"></div><div style="font-weight:500">Session</div><div style="font-size:20px;margin:8px 0 16px">Upper A</div><div class="rule"></div><div>Bench Press</div><div style="display:flex;gap:24px;margin-top:8px;font-variant-numeric:tabular-nums"><span>8</span><span>185</span></div></div><div class="btn" style="background:#0a0a0a;color:#fff">Save</div></div>`},
+  {id:5,name:"Stone & Ink",fit:95,note:"Current refined direction",
+   html:`<div class="screen c-stone"><div class="top"><span style="font-weight:600">Iron <span style="opacity:.4">Log</span></span></div><div class="body"><div class="title">Today</div><div style="font-size:32px;font-weight:600;letter-spacing:-0.04em">Tuesday</div><div style="opacity:.5;margin-bottom:16px">October 13, 2026</div><div class="inp">Session name</div><div style="padding:12px;border:1px solid #e5e5e5;border-radius:14px;margin-top:12px"><div style="font-weight:600;margin-bottom:8px">Bench Press</div><div class="row"><div class="inp">Reps</div><div class="inp">Weight</div></div></div></div><div class="btn" style="background:#0a0a0a;color:#fff">Save workout</div><div class="nav"><span class="acc" style="color:#0a0a0a;font-weight:600">Log</span><span>History</span><span>Stats</span><span>Import</span></div></div>`},
+  {id:6,name:"Mono Terminal",fit:70,note:"Grid for power users",
+   html:`<div class="screen c-mono"><div class="top"><span>$ iron-log</span></div><div class="body" style="font-size:12px"><div>&gt; session push_day</div><div style="margin:8px 0;opacity:.7">exercise | reps | wt</div><div>bench &nbsp;&nbsp;&nbsp;| 8 &nbsp;&nbsp;| 185</div><div>bench &nbsp;&nbsp;&nbsp;| 8 &nbsp;&nbsp;| 185</div><div style="margin-top:12px;color:#fff">+ add_set()</div></div><div class="btn" style="border:1px solid #3dff8a;color:#3dff8a">commit</div></div>`},
+  {id:7,name:"Luxury Wellness",fit:62,note:"Slow, editorial craft",
+   html:`<div class="screen c-lux"><div class="top"><span class="title">Iron Log</span></div><div class="body"><h3>Morning strength</h3><div style="opacity:.6;font-size:13px;margin:12px 0 24px">One breath between sets.</div><div style="font-size:15px">Romanian deadlift</div><div style="margin-top:16px;font-size:24px">8 × 135</div></div><div class="btn" style="background:#78716c;color:#fff">Complete set</div></div>`},
+  {id:8,name:"Thumb Gym",fit:85,note:"One-hand rack logging",
+   html:`<div class="screen c-stone"><div class="body" style="padding-top:16px"><div class="big" style="position:sticky;top:0;background:#fafaf9;padding-bottom:8px">Squat · Set 3</div><div style="display:flex;gap:12px;margin:24px 0"><div class="inp big" style="flex:1;text-align:center;font-size:24px">5</div><div class="inp big" style="flex:1;text-align:center;font-size:24px">315</div></div></div><div class="btn" style="background:#0a0a0a;color:#fff;margin-bottom:4px">Add set</div><div class="nav"><span class="acc">Log</span><span>History</span><span>Stats</span></div></div>`},
+  {id:9,name:"Data Studio",fit:80,note:"Stats and calendar first",
+   html:`<div class="screen c-data"><div class="top"><span style="font-weight:600">Overview</span><span style="font-size:11px;background:#e2e8f0;padding:4px 8px;border-radius:999px">Synced</span></div><div class="body"><div class="row" style="grid-template-columns:1fr 1fr"><div><div class="kpi">12</div><div style="font-size:11px;opacity:.6">Workouts</div></div><div><div class="kpi">842k</div><div style="font-size:11px;opacity:.6">Volume</div></div></div><div style="height:80px;background:#e2e8f0;border-radius:8px;margin-top:16px;display:flex;align-items:flex-end;gap:4px;padding:8px"><div style="flex:1;background:#64748b;height:40%"></div><div style="flex:1;background:#64748b;height:70%"></div><div style="flex:1;background:#0f172a;height:100%"></div></div><div style="margin-top:12px;font-size:12px;color:#64748b">+ Log workout (sheet)</div></div></div>`},
+  {id:10,name:"Zen Set",fit:48,note:"One set, full screen",
+   html:`<div class="screen c-zen"><div><div style="opacity:.5;font-size:12px;margin-bottom:8px">Set 2 of 4</div><div class="num">185</div><div style="opacity:.6;margin:8px 0">×</div><div class="num" style="font-size:36px">8</div><div style="margin-top:24px;font-size:14px">Bench press</div></div></div>`},
+];
+const g=document.getElementById('grid');
+concepts.forEach(c=>{
+  const el=document.createElement('section');
+  el.className='card';
+  el.id='concept-'+c.id;
+  el.innerHTML=`<h2>${c.id}. ${c.name}</h2><p class="meta">${c.fit}% fit · ${c.note}</p><div class="phone">${c.html}</div><span class="tag">Research board</span>`;
+  g.appendChild(el);
+});
+</script>
+</body>
+</html>
